@@ -1,0 +1,20 @@
+{
+  "name": "CACTI Demo",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
+  "postCreateCommand": "bash /workspaces/cacti-demo/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "foxundermoon.shell-format"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.fontSize": 14
+      }
+    }
+  },
+  "remoteEnv": {
+    "CACTI_DIR": "/workspaces/cacti-demo/cacti"
+  }
+}
