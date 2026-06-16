@@ -1,4 +1,4 @@
-# CACTI Demo — CS6886 / Faculty Workshop
+# CACTI Demo — Faculty Workshop
 
 > **One-click setup. No local install. Works on Windows, Mac, Linux — just a browser.**
 
@@ -8,78 +8,94 @@
 
 > Need a GitHub account? Sign up free at [github.com](https://github.com) — takes 2 minutes.
 
-Wait about 60 seconds. You'll land in a terminal with CACTI already compiled at `cacti/cacti`.
+Wait ~60 seconds. You'll land in a terminal with CACTI already compiled at `cacti/cacti`.
 
 ---
 
-## How to Run Any Config
+## How to Run
 
 ```bash
 cd cacti
 ./cacti -infile ../demo_configs/<filename>
 ```
 
-Look for these lines in the output — ignore everything else:
-- `Access time (ns)` — how long one read takes
-- `Cache height x width (mm^2)` — chip area
-- `Total leakage power (mW)` — power when idle
-- `Total dynamic read energy (nJ)` — cost per access
+**Three numbers to read from the output:**
+```
+Access time (ns)             ← how long one read takes
+Cache height x width (mm^2)  ← chip area
+Total leakage power (mW)     ← power when idle
+```
 
 ---
 
-## Demo Sequence (follows the slides)
+## Demo Sequence
 
-### Slide 5 — Baseline
+### Run 1 — Baseline (32KB, 1 bank)
 ```bash
-./cacti -infile ../demo_configs/01_baseline.cfg
+./cacti -infile ../demo_configs/01_baseline.cfg | grep -E "Access time|Cache height|leakage"
 ```
-32KB · 1-way · 64B block · 45nm · 1 bank. Record the numbers.
+Expected: **0.418 ns**. This is your reference point.
 
 ---
 
-### Slide 6 — Fix 1: Smaller block size (64B → 32B)
+### Run 2 — Cache Size Sweep
+*Smaller cache = fewer rows = shorter column wire = faster access.*
+
 ```bash
-./cacti -infile ../demo_configs/02_fix1_blocksize.cfg
+./cacti -infile ../demo_configs/02_size_64kb.cfg | grep "Access time"   # 0.650 ns — bigger, slower
+./cacti -infile ../demo_configs/01_baseline.cfg  | grep "Access time"   # 0.418 ns — baseline
+./cacti -infile ../demo_configs/03_size_16kb.cfg | grep "Access time"   # 0.335 ns — smaller, faster
+./cacti -infile ../demo_configs/04_size_8kb.cfg  | grep "Access time"   # 0.292 ns — smallest, fastest
 ```
-Only change: `block size 64 → 32`. Same 32KB capacity.
-Did access time go down? Fill the table on the slide.
+
+| Cache size | Access time |
+|---|---|
+| 64 KB | 0.650 ns |
+| **32 KB (baseline)** | **0.418 ns** |
+| 16 KB | 0.335 ns |
+| 8 KB | 0.292 ns |
+
+**Ask the audience:** Is 8KB always the right choice? (No — you lose 75% of your capacity.)
 
 ---
 
-### Slide 7 — Fix 2: Smaller cache (32KB → 16KB → 8KB)
-```bash
-./cacti -infile ../demo_configs/03_fix2a_size16kb.cfg
-./cacti -infile ../demo_configs/04_fix2b_size8kb.cfg
-```
-Capacity drops. Access time drops too. Is the trade-off worth it?
+### Run 3 — Banking Sweep
+*Banks split the array so each bank has shorter wires — but more banks means more routing overhead between them.*
 
----
-
-### Slide 8 — Fix 3: Banking (1 → 2 → 4 banks)
 ```bash
-./cacti -infile ../demo_configs/05_fix3a_banks2.cfg
-./cacti -infile ../demo_configs/06_fix3b_banks4.cfg
+./cacti -infile ../demo_configs/01_baseline.cfg | grep "Access time"   # 0.418 ns — 1 bank
+./cacti -infile ../demo_configs/05_banks_2.cfg  | grep "Access time"   # 0.375 ns — 2 banks ← sweet spot
+./cacti -infile ../demo_configs/06_banks_4.cfg  | grep "Access time"   # 0.404 ns — 4 banks, slower!
+./cacti -infile ../demo_configs/07_banks_8.cfg  | grep "Access time"   # 0.390 ns — 8 banks
 ```
-Back to full 32KB. Banks split the array — shorter wires, faster access.
-`06_fix3b_banks4.cfg` is the **final design** from Slide 9.
+
+| Banks | Access time | Note |
+|---|---|---|
+| 1 | 0.418 ns | baseline |
+| **2** | **0.375 ns** | **sweet spot** |
+| 4 | 0.404 ns | H-tree overhead kicks in |
+| 8 | 0.390 ns | still slower than 2 |
+
+**Ask the audience before running:** "Will more banks always be faster?"
+They'll say yes. The table shows it isn't — and they have to explain why.
 
 ---
 
 ## The Five Parameters That Control Everything
 
-Open any `.cfg` file and you'll see these at the top — everything else is boilerplate:
+```
+-size (bytes)        total cache capacity
+-block size (bytes)  size of one cache line
+-associativity       1 = direct-mapped, 4/8/16 = set-associative
+-technology (u)      chip generation: 0.090, 0.065, 0.045, 0.032
+-UCA bank count      number of banks
+```
 
-```
--size (bytes)       # total cache capacity
--block size (bytes) # size of one cache line
--associativity      # 1 = direct-mapped, 4/8/16 = set-associative
--technology (u)     # chip generation: 0.090, 0.065, 0.045, 0.032
--UCA bank count     # number of banks
-```
+Everything else in the config file is boilerplate — leave it alone.
 
 ---
 
 ## Stopping Your Codespace
 
 Go to [github.com/codespaces](https://github.com/codespaces) → Stop.
-It auto-stops after 30 minutes idle. Free accounts get 120 core-hours/month — plenty.
+Auto-stops after 30 minutes idle. Free accounts get 120 core-hours/month.
