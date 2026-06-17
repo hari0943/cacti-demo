@@ -30,9 +30,9 @@ for cfg in $CONFIGS/block_128B.cfg \
   block=$(grep "^-block size" $cfg | awk '{print $4}')
   out=$($CACTI -infile $cfg 2>/dev/null)
 
-  access=$(echo "$out" | grep "Access time"          | awk '{print $NF}')
-  area=$(echo "$out"   | grep "Cache height x width" | awk '{print $NF}')
-  leak=$(echo "$out"   | grep "Total leakage power"  | awk '{print $NF}')
+  access=$(echo "$out" | grep "Access time"          | head -1 | awk '{print $NF}')
+  area=$(echo "$out"   | grep "Cache height x width" | head -1 | awk '{print $NF}')
+  leak=$(echo "$out"   | grep "Total leakage power"  | head -1 | awk '{print $NF}')
 
   printf "  %-12s  %-14s  %-14s  %-14s\n" \
          "${block}B" "$access" "$area" "$leak"

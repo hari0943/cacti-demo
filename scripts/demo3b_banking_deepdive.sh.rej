@@ -1,0 +1,17 @@
+--- scripts/demo3b_banking_deepdive.sh	2026-06-17 04:35:26.172257648 +0000
++++ scripts/demo3b_banking_deepdive.sh	2026-06-17 04:35:26.169960659 +0000
+@@ -30,10 +30,10 @@
+   cfg=$CONFIGS/banks_${banks}.cfg
+   out=$($CACTI -infile $cfg 2>/dev/null)
+ 
+-  access=$(echo "$out" | grep "Access time" | awk '{print $NF}')
+-  ndwl=$(echo "$out"   | grep "Best Ndwl"   | awk '{print $NF}')
+-  ndbl=$(echo "$out"   | grep "Best Ndbl"   | awk '{print $NF}')
+-  nspd=$(echo "$out"   | grep "Best Nspd"   | awk '{print $NF}')
++  access=$(echo "$out" | grep "Access time" | head -1 | awk '{print $NF}')
++  ndwl=$(echo "$out"   | grep "Best Ndwl"   | head -1 | awk '{print $NF}')
++  ndbl=$(echo "$out"   | grep "Best Ndbl"   | head -1 | awk '{print $NF}')
++  nspd=$(echo "$out"   | grep "Best Nspd"   | head -1 | awk '{print $NF}')
+ 
+   if [ "$banks" -eq 1 ]; then
+     phase="baseline"

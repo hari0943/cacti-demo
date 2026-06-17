@@ -29,8 +29,8 @@ for banks in 1 2 4 8; do
   cfg=$CONFIGS/banks_${banks}.cfg
   out=$($CACTI -infile $cfg 2>/dev/null)
 
-  access=$(echo "$out" | grep "Access time"          | awk '{print $NF}')
-  area=$(echo "$out"   | grep "Cache height x width" | awk '{print $NF}')
+  access=$(echo "$out" | grep "Access time"          | head -1 | awk '{print $NF}')
+  area=$(echo "$out"   | grep "Cache height x width" | head -1 | awk '{print $NF}')
 
   note=""
   if [ "$banks" -eq 1 ]; then
