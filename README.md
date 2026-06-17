@@ -12,72 +12,92 @@ Wait ~60 seconds. You'll land in a terminal with CACTI already compiled at `cact
 
 ---
 
-## How to Run
+## Running the Demos
+
+All scripts must be run from inside the `cacti/` directory:
 
 ```bash
 cd cacti
-./cacti -infile ../demo_configs/<filename>
 ```
 
-**Three numbers to read from the output:**
+### Run everything in sequence
+```bash
+bash ../scripts/run_all.sh
 ```
-Access time (ns)             ← how long one read takes
-Cache height x width (mm^2)  ← chip area
-Total leakage power (mW)     ← power when idle
+
+### Or run each demo individually
+
+```bash
+bash ../scripts/demo1_blocksize.sh
+bash ../scripts/demo2_cachesize.sh
+bash ../scripts/demo3a_banking_sweetspot.sh
+bash ../scripts/demo3b_banking_deepdive.sh
 ```
 
 ---
 
-## Demo Sequence
+## What Each Demo Shows
 
-### Run 1 — Baseline (32KB, 1 bank)
-```bash
-./cacti -infile ../demo_configs/01_baseline.cfg | grep -E "Access time|Cache height|leakage"
-```
-Expected: **0.418 ns**. This is your reference point.
+### Demo 1 — Block Size Effect
+**Configs:** `demo_configs/demo1_blocksize/`  
+**Cache:** 512KB · direct-mapped · 45nm · 1 bank · normal mode
 
----
+Smaller block → more tag bits → bigger tag array → slower access.
 
-### Run 2 — Cache Size Sweep
-*Smaller cache = fewer rows = shorter column wire = faster access.*
-
-```bash
-./cacti -infile ../demo_configs/02_size_64kb.cfg | grep "Access time"   # 0.650 ns — bigger, slower
-./cacti -infile ../demo_configs/01_baseline.cfg  | grep "Access time"   # 0.418 ns — baseline
-./cacti -infile ../demo_configs/03_size_16kb.cfg | grep "Access time"   # 0.335 ns — smaller, faster
-./cacti -infile ../demo_configs/04_size_8kb.cfg  | grep "Access time"   # 0.292 ns — smallest, fastest
-```
-
-| Cache size | Access time |
+| Block Size | Access (ns) |
 |---|---|
-| 64 KB | 0.650 ns |
-| **32 KB (baseline)** | **0.418 ns** |
-| 16 KB | 0.335 ns |
-| 8 KB | 0.292 ns |
-
-**Ask the audience:** Is 8KB always the right choice? (No — you lose 75% of your capacity.)
+| 128B | 1.843 |
+| 64B  | 1.880 |
+| 32B  | 1.978 |
+| 16B  | 2.175 |
 
 ---
 
-### Run 3 — Banking Sweep
-*Banks split the array so each bank has shorter wires — but more banks means more routing overhead between them.*
+### Demo 2 — Cache Size Effect
+**Configs:** `demo_configs/demo2_cachesize/`  
+**Cache:** direct-mapped · 64B block · 45nm · 1 bank · normal mode
 
-```bash
-./cacti -infile ../demo_configs/01_baseline.cfg | grep "Access time"   # 0.418 ns — 1 bank
-./cacti -infile ../demo_configs/05_banks_2.cfg  | grep "Access time"   # 0.375 ns — 2 banks ← sweet spot
-./cacti -infile ../demo_configs/06_banks_4.cfg  | grep "Access time"   # 0.404 ns — 4 banks, slower!
-./cacti -infile ../demo_configs/07_banks_8.cfg  | grep "Access time"   # 0.390 ns — 8 banks
-```
+Bigger cache → more rows → longer column wire → slower access.
 
-| Banks | Access time | Note |
+| Cache Size | Access (ns) |
+|---|---|
+| 128KB  | 1.149 |
+| 256KB  | 1.431 |
+| 512KB  | 1.880 |
+| 1024KB | 2.432 |
+
+---
+
+### Demo 3a — Banking: Sweet Spot
+**Configs:** `demo_configs/demo3a_banking_sweetspot/`  
+**Cache:** 32KB · direct-mapped · 64B block · 45nm · normal mode
+
+Ask the audience before running: *"Will more banks always be faster?"*
+
+| Banks | Access (ns) | Note |
 |---|---|---|
-| 1 | 0.418 ns | baseline |
-| **2** | **0.375 ns** | **sweet spot** |
-| 4 | 0.404 ns | H-tree overhead kicks in |
-| 8 | 0.390 ns | still slower than 2 |
+| 1 | 0.418 | baseline |
+| 2 | 0.375 | ✓ sweet spot |
+| 4 | 0.404 | ✗ slower — H-tree overhead kicks in |
+| 8 | 0.390 | still slower than 2 |
 
-**Ask the audience before running:** "Will more banks always be faster?"
-They'll say yes. The table shows it isn't — and they have to explain why.
+---
+
+### Demo 3b — Banking: Deep Dive
+**Configs:** `demo_configs/demo3b_banking_deepdive/`  
+**Cache:** 512KB · direct-mapped · 64B block · 45nm · normal mode
+
+CACTI re-optimises its internal subarray layout (Ndwl × Ndbl) at every bank count. Watch it simplify — then hit a wall.
+
+| Banks | Access (ns) | Ndwl | Ndbl | Nspd | Phase |
+|---|---|---|---|---|---|
+| 1  | 1.880 | 4 | 8 | 4   | baseline |
+| 2  | 1.690 | 4 | 4 | 4   | layout simplified |
+| 4  | 1.544 | 2 | 4 | 2   | layout simplified |
+| 8  | 1.409 | 2 | 2 | 2   | layout minimum ✓ |
+| 16 | 1.453 | 2 | 2 | 1   | Ndwl/Ndbl stuck |
+| 32 | 1.379 | 2 | 2 | 1   | recovers slightly |
+| 64 | 1.414 | 2 | 2 | 0.5 | Nspd fractional, noisy |
 
 ---
 
@@ -86,12 +106,12 @@ They'll say yes. The table shows it isn't — and they have to explain why.
 ```
 -size (bytes)        total cache capacity
 -block size (bytes)  size of one cache line
--associativity       1 = direct-mapped, 4/8/16 = set-associative
+-associativity       1 = direct-mapped
 -technology (u)      chip generation: 0.090, 0.065, 0.045, 0.032
 -UCA bank count      number of banks
 ```
 
-Everything else in the config file is boilerplate — leave it alone.
+Everything else in the config files is boilerplate — leave it alone.
 
 ---
 
