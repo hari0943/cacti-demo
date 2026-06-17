@@ -11,8 +11,8 @@ SEP="─────────────────────────
 
 echo ""
 echo "╔═════════════════════════════════════════════════════════╗"
-echo "║           DEMO 2 — Cache Size Effect                   ║"
-echo "║   direct-mapped · 64B block · 45nm · 1 bank · sequential║"
+echo "║           DEMO 2 — Cache Size Effect                    ║"
+echo "║   direct-mapped · 64B block · 45nm · 1 bank             ║"
 echo "╚═════════════════════════════════════════════════════════╝"
 echo ""
 echo "  Concept: Bigger cache → more rows → longer column wire → slower"
@@ -38,10 +38,3 @@ for cfg in $CONFIGS/size_128KB.cfg \
   printf "  %-12s  %-14s  %-14s  %-14s\n" \
          "${kb}KB" "$access" "$area" "$leak"
 done
-
-echo "  $SEP"
-echo ""
-echo "  Key insight: access time and area both grow with cache size."
-echo "  Doubling the cache does not double access time — but the"
-echo "  penalty compounds. A 1MB cache is 2x slower than 128KB."
-echo ""

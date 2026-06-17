@@ -11,8 +11,8 @@ SEP="─────────────────────────
 
 echo ""
 echo "╔═════════════════════════════════════════════════════════╗"
-echo "║        DEMO 3a — Banking: Sweet Spot                   ║"
-echo "║      32KB · direct-mapped · 64B block · 45nm · fast    ║"
+echo "║        DEMO 3a — Banking: Sweet Spot                    ║"
+echo "║      32KB · direct-mapped · 64B block · 45nm            ║"
 echo "╚═════════════════════════════════════════════════════════╝"
 echo ""
 echo "  Question for the audience: Will more banks always be faster?"
@@ -50,9 +50,3 @@ for banks in 1 2 4 8; do
   prev_access=$access
 done
 
-echo "  $SEP"
-echo ""
-echo "  Key insight: 2 banks is the sweet spot for 32KB at 45nm."
-echo "  Beyond that, H-tree routing between banks costs more than"
-echo "  the shorter internal wires save. More is not always better."
-echo ""

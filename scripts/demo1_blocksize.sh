@@ -11,8 +11,8 @@ SEP="─────────────────────────
 
 echo ""
 echo "╔═════════════════════════════════════════════════════════╗"
-echo "║           DEMO 1 — Block Size Effect                   ║"
-echo "║   512KB · direct-mapped · 45nm · 1 bank · sequential   ║"
+echo "║           DEMO 1 — Block Size Effect                    ║"
+echo "║   512KB · direct-mapped · 45nm · 1 bank                 ║"
 echo "╚═════════════════════════════════════════════════════════╝"
 echo ""
 echo "  Concept: Smaller block → more tag bits → bigger tag array → slower"
@@ -38,8 +38,3 @@ for cfg in $CONFIGS/block_128B.cfg \
          "${block}B" "$access" "$area" "$leak"
 done
 
-echo "  $SEP"
-echo ""
-echo "  Key insight: access time rises as block size shrinks."
-echo "  Smaller block = more rows in tag array = longer tag lookup = slower total access."
-echo ""

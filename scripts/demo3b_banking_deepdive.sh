@@ -11,8 +11,8 @@ SEP="─────────────────────────
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════════════════╗"
-echo "║             DEMO 3b — Banking: Deep Dive                               ║"
-echo "║     512KB · direct-mapped · 64B block · 45nm · sequential              ║"
+echo "║             DEMO 3b — Banking: Deep Dive                                 ║"
+echo "║     512KB · direct-mapped · 64B block · 45nm                             ║"
 echo "╚══════════════════════════════════════════════════════════════════════════╝"
 echo ""
 echo "  CACTI doesn't just split the cache — it re-optimises the internal"
@@ -61,16 +61,3 @@ for banks in 1 2 4 8 16 32 64; do
   prev_ndwl=$ndwl
   prev_ndbl=$ndbl
 done
-
-echo "  $SEP"
-echo ""
-echo "  Phase 1 (banks 1→8):  Each doubling lets CACTI simplify Ndwl and Ndbl."
-echo "                         The subarray gets more compact. Big wins."
-echo ""
-echo "  Phase 2 (bank 8):     Sweet spot. Ndwl=2, Ndbl=2 — can't go lower."
-echo "                         Internal layout is as simple as it gets."
-echo ""
-echo "  Phase 3 (banks 8→64): Ndwl/Ndbl are stuck at minimum. Only Nspd changes."
-echo "                         Nspd goes fractional — physically meaningless."
-echo "                         H-tree routing overhead dominates. Results get noisy."
-echo ""
